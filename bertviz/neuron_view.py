@@ -157,10 +157,11 @@ def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, inc
     # Call model to get attention data
     model.eval()
     if token_type_ids is not None:
-        output = model(tokens_tensor, token_type_ids=token_type_ids)
+        pred, output = model(tokens_tensor, token_type_ids=token_type_ids)
+        # output = model(tokens_tensor, token_type_ids=token_type_ids)
     else:
-        output = model(tokens_tensor)
-    attn_data_list = output[-1]
+        pred, output = model(tokens_tensor)
+    attn_data_list = output.attentions
 
     # Populate map with attn data and, optionally, query, key data
     attn_dict = defaultdict(list)
