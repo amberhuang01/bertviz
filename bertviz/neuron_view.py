@@ -156,7 +156,7 @@ def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, inc
     # Call model to get attention data
     model.eval()
     if token_type_ids is not None:
-      pred, output = model(input_ids, token_type_ids=token_type_ids)
+      pred, output = model(tokens_tensor, token_type_ids=token_type_ids)
         # output, _ = model.return_attention(tokens_tensor, token_type_ids=token_type_ids)
     else:
       pred, output = model(tokens_tensor)
