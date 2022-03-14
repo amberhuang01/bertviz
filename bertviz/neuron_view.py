@@ -88,9 +88,9 @@ def show(model, model_type, tokenizer, sentence_a, sentence_b=None, display_mode
     display(Javascript(vis_js))
 
 
+from collections import defaultdict
 def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, include_queries_and_keys=False):
     """Compute representation of attention to pass to the d3 visualization
-
     Args:
         model: pytorch-transformers model
         model_type: type of model. Valid values 'bert', 'gpt2', 'xlnet', 'roberta'
@@ -98,7 +98,6 @@ def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, inc
         sentence_a: Sentence A string
         sentence_b: Sentence B string
         include_queries_and_keys: Indicates whether to include queries/keys in results
-
     Returns:
       Dictionary of attn representations with the structure:
       {
@@ -157,10 +156,10 @@ def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, inc
     # Call model to get attention data
     model.eval()
     if token_type_ids is not None:
-        pred, output = model(tokens_tensor, token_type_ids=token_type_ids)
-        # output = model(tokens_tensor, token_type_ids=token_type_ids)
+      pred, output = model(input_ids, token_type_ids=token_type_ids)
+        # output, _ = model.return_attention(tokens_tensor, token_type_ids=token_type_ids)
     else:
-        pred, output = model(tokens_tensor)
+      pred, output = model(tokens_tensor)
     attn_data_list = output.attentions
 
     # Populate map with attn data and, optionally, query, key data
@@ -174,7 +173,7 @@ def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, inc
         slice_b = slice(len(tokens_a), len(tokens_a) + len(tokens_b))  # Position corresponding to sentence B in input
     for layer, attn_data in enumerate(attn_data_list):
         # Process attention
-        attn = attn_data['attn'][0]  # assume batch_size=1; shape = [num_heads, source_seq_len, target_seq_len]
+        attn = attn_data[0]  # assume batch_size=1; shape = [num_heads, source_seq_len, target_seq_len]
         attn_dict['all'].append(attn.tolist())
         if is_sentence_pair:
             attn_dict['aa'].append(
@@ -258,7 +257,6 @@ def get_attention(model, model_type, tokenizer, sentence_a, sentence_b=None, inc
                 'keys': keys_dict['a'],
             })
     return results
-
 
 def format_special_chars(tokens):
     return [t.replace('Ġ', ' ').replace('▁', ' ') for t in tokens]
